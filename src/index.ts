@@ -68,7 +68,12 @@ const main = () => {
 
   try {
     log(info('Looking for git ignore file'));
-    gitIgnores = fs.readFileSync('.gitignore').toString().split('\n');
+    gitIgnores = fs
+      .readFileSync('.gitignore')
+      .toString()
+      .split('\n')
+      .filter((g) => g.length > 2)
+      .map((m) => m.trim().replace(/\s/g, ''));
   } catch {
     log(warning('Could not find a gitignore file'));
   }
@@ -100,7 +105,7 @@ const main = () => {
 
   const filteredFiles = files
     .filter((file) => !ignoreDirs.includes(file.replace(currentDir, '').substring(1)))
-    .filter((file) => !ignoreExtensions.includes(file.match(extensionRegexMatch)[1]));
+    .filter((file) => !ignoreExtensions.includes(file.match(extensionRegexMatch)?.[1]));
 
   log(info(`Outputting to file`, outputFile));
 

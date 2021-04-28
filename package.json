@@ -1,6 +1,6 @@
 {
   "name": "dirtxt",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Converts your current directories and subdirectories files contents to a txt file ",
   "repository": "git@github.com:medzz123/dirtxt.git",
   "author": "Mahedi Hasan <mahedi.hs1997@gmail.com>",

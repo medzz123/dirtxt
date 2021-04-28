@@ -38,7 +38,38 @@ dist
 
 File: .gitignore
 
-node_modules
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# storybook
 dist
 
 File: .prettierrc.js
@@ -115,7 +146,30 @@ File: .vscode/settings.json
 
 File: README.md
 
-# dirtxt
+# Convert your project code into one txt file
+
+### How to use
+
+1. Make sure you have node installed in the system https://nodejs.org/en/
+2. Go to the root folder of your project
+3. Run `npx dirtxt`
+
+### Commands available
+
+| Commands                  |              Description              |              Usage |
+| ------------------------- | :-----------------------------------: | -----------------: |
+| --debug                   |     Adds debug logs while running     |                n/a |
+| --di or --dontIgnore      | Doesn't ignore any directory or file  |                n/a |
+| --i or --ignore           | Ignores directories or files inputted | --i={dir,one,file} |
+| --e or --extensionsIgnore |      Ignores extensions inputted      |  --e={png,jpg,mp4} |
+| --o or --output           | Output file, default is `output.txt`  |  --o somewhere.txt |
+
+
+#### Default settings
+- Directories and files ignored by default: node_modules, .git, yarn.lock, package-lock.json
+- Extensions ignored by default: tif, tiff, bmp, jpg, jpeg, gif, png, eps, raw, cr2, nef, orf, sr2, mp4
+- Reads .gitignore file if it exits and ignores all the directories and files listed there
+- Outputs by default to output.txt
 
 
 File: nodemon.json
@@ -135,7 +189,7 @@ File: package.json
 
 {
   "name": "dirtxt",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Converts your current directories and subdirectories files contents to a txt file ",
   "repository": "git@github.com:medzz123/dirtxt.git",
   "author": "Mahedi Hasan <mahedi.hs1997@gmail.com>",
@@ -259,7 +313,12 @@ const main = () => {
 
   try {
     log(info('Looking for git ignore file'));
-    gitIgnores = fs.readFileSync('.gitignore').toString().split('\n');
+    gitIgnores = fs
+      .readFileSync('.gitignore')
+      .toString()
+      .split('\n')
+      .filter((g) => g.length > 2)
+      .map((m) => m.trim().replace(/\s/g, ''));
   } catch {
     log(warning('Could not find a gitignore file'));
   }
@@ -291,7 +350,7 @@ const main = () => {
 
   const filteredFiles = files
     .filter((file) => !ignoreDirs.includes(file.replace(currentDir, '').substring(1)))
-    .filter((file) => !ignoreExtensions.includes(file.match(extensionRegexMatch)[1]));
+    .filter((file) => !ignoreExtensions.includes(file.match(extensionRegexMatch)?.[1]));
 
   log(info(`Outputting to file`, outputFile));
 
