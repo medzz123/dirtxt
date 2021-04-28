@@ -39,12 +39,22 @@ const main = () => {
 
   const currentDir = process.cwd();
 
+  let gitIgnores = [];
+
+  try {
+    gitIgnores = fs.readFileSync('.gitignore').toString().split('\n');
+  } catch {
+    console.warn('Skipping .gitignore as we did not find one');
+  }
+
+  console.log(gitIgnores);
+
   const ignoreDirs =
     commands.di || commands.dontIgnore
       ? []
       : commands.i || commands.ignore
-      ? [...globalIgnores, ...(commands.i || commands.ignore)]
-      : globalIgnores;
+      ? [...globalIgnores, ...gitIgnores, ...(commands.i || commands.ignore)]
+      : [...globalIgnores, ...gitIgnores];
 
   const outputFile = commands.o || commands.output || 'output.txt';
 
@@ -59,6 +69,8 @@ const main = () => {
 
     writeStream.write(`File: ${file.replace(currentDir, '').substring(1)}\n\n${content}\n\n`);
   });
+
+  console.log(`Your output is in ${outputFile}`);
 };
 
 main();

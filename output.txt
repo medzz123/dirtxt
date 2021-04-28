@@ -1,0 +1,349 @@
+File: .eslintignore
+
+node_modules
+dist
+
+File: .eslintrc.js
+
+module.exports = {
+  root: true,
+  parser: '@typescript-eslint/parser',
+  plugins: ['simple-import-sort'],
+  env: {
+    node: true,
+  },
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+    'plugin:json/recommended',
+    'prettier',
+  ],
+  rules: {
+    'prettier/prettier': ['error', {}, { usePrettierrc: true }],
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
+    'simple-import-sort/imports': 'error',
+  },
+};
+
+
+File: .fakeIgnore
+
+node_modules
+dist
+
+File: .gitignore
+
+node_modules
+dist
+
+File: .prettierrc.js
+
+module.exports = {
+  semi: true,
+  trailingComma: 'es5',
+  singleQuote: true,
+  printWidth: 100,
+  tabWidth: 2,
+  useTabs: false,
+};
+
+
+File: .vscode/launch.json
+
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Start script",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "start"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+    {
+      "name": "Nodemon script",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "nodemon"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+  ]
+}
+
+
+File: .vscode/settings.json
+
+{
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "cSpell.words": [
+    "Mahedi",
+    "buga",
+    "bugendo",
+    "codegen",
+    "dirtxt",
+    "hasan",
+    "keynod",
+    "postgres",
+    "postversion",
+    "preversion",
+    "uga",
+    "ugabuga",
+    "ugendo"
+  ]
+}
+
+
+File: README.md
+
+# dirtxt
+
+
+File: dist/index.js
+
+#!/usr/bin/env node
+"use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+exports.__esModule = true;
+var fs_1 = __importDefault(require("fs"));
+var minimist_1 = __importDefault(require("minimist"));
+var globalIgnores = ['node_modules', '.git', 'yarn.lock', 'package-lock.json'];
+function getFiles(dir, ignores, cwd, appendFiles_) {
+    var files_ = appendFiles_ || [];
+    var files = fs_1["default"].readdirSync(dir);
+    var relativeDir = dir.replace(cwd, '');
+    var matchIgnoredDirectory = ignores.filter(function (ignore) { return relativeDir.includes(ignore); });
+    if (matchIgnoredDirectory.length > 0) {
+        return files_;
+    }
+    var _loop_1 = function (i) {
+        var matchIgnore = ignores.filter(function (ignore) { return files[i] === ignore; });
+        if (matchIgnore.length > 0) {
+            return "continue";
+        }
+        var name_1 = dir + '/' + files[i];
+        if (fs_1["default"].statSync(name_1).isDirectory()) {
+            getFiles(name_1, ignores, cwd, files_);
+        }
+        else {
+            files_.push(name_1);
+        }
+    };
+    for (var i in files) {
+        _loop_1(i);
+    }
+    return files_;
+}
+var main = function () {
+    var commands = minimist_1["default"](process.argv);
+    var currentDir = process.cwd();
+    var ignoreDirs = commands.di || commands.dontIgnore
+        ? []
+        : commands.i || commands.ignore
+            ? __spreadArray(__spreadArray([], globalIgnores), (commands.i || commands.ignore)) : globalIgnores;
+    var outputFile = commands.o || commands.output || 'output.txt';
+    var files = getFiles(currentDir, ignoreDirs, currentDir);
+    fs_1["default"].writeFileSync(outputFile, '');
+    var writeStream = fs_1["default"].createWriteStream(outputFile, { flags: 'a' });
+    files.forEach(function (file) {
+        var content = fs_1["default"].readFileSync(file);
+        writeStream.write("File: " + file.replace(currentDir, '').substring(1) + "\n\n" + content + "\n\n");
+    });
+};
+main();
+
+
+File: nodemon.json
+
+{
+  "watch": ["src"],
+  "ext": "ts",
+  "exec": "ts-node ./src/index.ts"
+}
+
+
+File: output.txt
+
+
+
+File: package.json
+
+{
+  "name": "dirtxt",
+  "version": "1.0.1",
+  "description": "Converts your current directories and subdirectories files contents to a txt file ",
+  "repository": "git@github.com:medzz123/dirtxt.git",
+  "author": "Mahedi Hasan <mahedi.hs1997@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "keywords": ["Directory", "Text", "Txt", "Project", "Git"],
+  "main": "dist/index.js",
+  "files": ["dist/**/*"],
+  "bin": {
+    "dirtxt": "./dist/index.js"
+  },
+  "scripts": {
+    "nodemon": "nodemon",
+    "start": "ts-node src/index.ts",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "ts": "tsc --noEmit",
+    "build": "tsc",
+    "prepublishOnly": "yarn lint && yarn build"
+  },
+  "dependencies": {
+    "minimist": "^1.2.5",
+    "node": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.1",
+    "@types/node": "^15.0.1",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "eslint": "^7.25.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-json": "^2.1.2",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "prettier": "^2.2.1"
+  }
+}
+
+
+File: src/index.ts
+
+#!/usr/bin/env node
+
+import fs from 'fs';
+import minimist from 'minimist';
+
+const globalIgnores = ['node_modules', '.git', 'yarn.lock', 'package-lock.json'];
+
+function getFiles(dir: string, ignores: string[], cwd: string, appendFiles_?: string[]) {
+  const files_ = appendFiles_ || [];
+  const files = fs.readdirSync(dir);
+
+  const relativeDir = dir.replace(cwd, '');
+
+  const matchIgnoredDirectory = ignores.filter((ignore) => relativeDir.includes(ignore));
+
+  if (matchIgnoredDirectory.length > 0) {
+    return files_;
+  }
+
+  for (const i in files) {
+    const matchIgnore = ignores.filter((ignore) => files[i] === ignore);
+
+    if (matchIgnore.length > 0) {
+      continue;
+    }
+
+    const name = dir + '/' + files[i];
+    if (fs.statSync(name).isDirectory()) {
+      getFiles(name, ignores, cwd, files_);
+    } else {
+      files_.push(name);
+    }
+  }
+  return files_;
+}
+
+const main = () => {
+  const commands = minimist(process.argv);
+
+  const currentDir = process.cwd();
+
+  let gitIgnores = [];
+
+  try {
+    gitIgnores = fs.readFileSync('.gitignor').toString().split('\n');
+  } catch {
+    console.warn('Skipping .gitignore as we did not find one');
+  }
+
+  console.log(gitIgnores);
+
+  const ignoreDirs =
+    commands.di || commands.dontIgnore
+      ? []
+      : commands.i || commands.ignore
+      ? [...globalIgnores, ...gitIgnores, ...(commands.i || commands.ignore)]
+      : [...globalIgnores, ...gitIgnores];
+
+  const outputFile = commands.o || commands.output || 'output.txt';
+
+  const files = getFiles(currentDir, ignoreDirs, currentDir);
+
+  fs.writeFileSync(outputFile, '');
+
+  const writeStream = fs.createWriteStream(outputFile, { flags: 'a' });
+
+  files.forEach((file) => {
+    const content = fs.readFileSync(file);
+
+    writeStream.write(`File: ${file.replace(currentDir, '').substring(1)}\n\n${content}\n\n`);
+  });
+
+  console.log(`Your output is in ${outputFile}`);
+};
+
+main();
+
+
+File: tsconfig.json
+
+{
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
+  "compilerOptions": {
+    "target": "es3",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "outDir": "./dist",
+    "jsx": "preserve",
+    "typeRoots": ["node_modules/@types"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
+
+
